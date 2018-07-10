@@ -5,7 +5,6 @@ import datetime
 import time
 import imutils
 import warnings
-import json
 from imutils.object_detection import non_max_suppression
 from imutils import paths
 import os
@@ -22,26 +21,6 @@ import urllib
 import base64
 import pygame
 from twilio.rest import Client
-import pymysql.cursors
-connection = pymysql.connect(host='localhost',
-                             user='root',
-                             password='',
-                             db='motion',
-                             charset='utf8mb4',
-                             cursorclass=pymysql.cursors.DictCursor)
-
-subscriber = "Select * from notifications where Station='makerere'"
-try:
-        cursor = connection.cursor()
-        cursor.execute(subscriber)
-        for row in cursor:
-           mail=  row["Email"]
-           phone= row["Phone"]
-           name= row["Name"]     
-finally:
- # Close connection.
-    # connection.close()
-    print("")
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
@@ -129,17 +108,15 @@ while(camera.isOpened()):
 
                 #check internet availabiity
                 try:
-                    urlopen("https://www.google.com").close()
+                    urlopen("http://www.google.com").close()
                 except urllib.error.URLError:
                     print("Not Connected")
                     time.sleep(5)
                 else:
-                    
                     #email module
                     print("Sending EMAIL...")
                     from_addr = "weatherstationsecure@gmail.com"
-                    to_addr = mail
-
+                    to_addr = "weatherstationsecure@gmail.com"
                     msg = MIMEMultipart()
                     msg['From'] = from_addr
                     msg['To'] = to_addr
@@ -160,12 +137,12 @@ while(camera.isOpened()):
                     server.sendmail(from_addr, to_addr, text)
                     server.quit()
                     
-                    # sms module
+                    #sms module
                     print("Sending SMS...")
                     account = "AC98a70f689d74961cf681d59f16842ddc"
                     token = "72996ebbf858d6ce02e6eec18c1abaf8"
                     client = Client(account, token)
-                    message = client.messages.create(to= phone , from_="+15172367545",
+                    message = client.messages.create(to="+256790870109", from_="+15172367545",
                                             body="alert!, there has been an intrusion at the weather station. Please check your email for the images")
 
                     #alarm module
@@ -199,7 +176,7 @@ while(camera.isOpened()):
     #cv2.imshow("Frame after bluring", blur_frame)
     #cv2.imshow("Frame after dilation", dilate_frame)
     #cv2.imshow("Frame after erosion", erosion)
-
+    
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     #os.remove(img)
